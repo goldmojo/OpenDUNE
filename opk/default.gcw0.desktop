@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=OpenDune
+Comment=Dune 2 port
+Exec=env LD_LIBRARY_PATH=/mnt/OpenDune ./opendune
+Terminal=false
+Type=games
+StartupNotify=true
+Icon=icon
+Categories=games
+X-OD-NeedsDownscaling=true

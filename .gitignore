@@ -30,3 +30,10 @@ tools/*.o
 tools/*.pyc
 tools/amigaMXextract
 tools/extractpak
+
+opendune.opk
+opk/libpulse.so.0
+opk/libjson-c.so.2
+opk/libpulsecommon-5.0.so
+opk/opendune
+.vscode
