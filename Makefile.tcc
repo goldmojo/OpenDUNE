@@ -30,7 +30,8 @@ ifndef SDL_INCLUDE
 ifdef OSX
 SDL_INCLUDE := /opt/local/include/SDL
 else
-SDL_INCLUDE := /usr/include/SDL
+#SDL_INCLUDE := /usr/include/SDL
+SDL_INCLUDE := /opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/include/SDL
 endif
 endif
 
@@ -44,7 +45,8 @@ ifdef OSX
 ifdef STATIC
 LDFLAGS := $(LDFLAGS) `sdl-config --static-libs`
 else
-LDFLAGS := $(LDFLAGS) `sdl-config --libs`
+#LDFLAGS := $(LDFLAGS) `sdl-config --libs`
+LDFLAGS := $(LDFLAGS) `/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl-config --libs`
 endif
 else
 LIBS := $(LIBS) -lSDL

@@ -1544,7 +1544,8 @@ detect_sdl2() {
 	fi
 
 	if [ "$with_sdl2" = "1" ] || [ "$with_sdl2" = "" ] || [ "$with_sdl2" = "2" ]; then
-		sdl2_config="sdl2-config"
+		#sdl2_config="sdl2-config"
+		sdl2_config="/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl2-config"
 	else
 		sdl2_config="$with_sdl2"
 	fi
