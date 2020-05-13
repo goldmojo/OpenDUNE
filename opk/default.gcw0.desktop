@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=OpenDune
-Comment=Dune 2 port
-Exec=env LD_LIBRARY_PATH=/mnt/OpenDune ./opendune
+Comment=OpenDune for RG350
+Exec=opendune
 Terminal=false
 Type=games
 StartupNotify=true
