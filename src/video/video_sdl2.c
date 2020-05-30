@@ -279,7 +279,13 @@ bool Video_Init(int screen_magnification, VideoScaleFilter filter)
 		hqxInit();
 	}
 
+	#ifdef __GCW0__
+	/* Activate Joystick for GCW0 */
+	err = SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO);
+	SDL_JoystickEventState(SDL_ENABLE);
+	#else
 	err = SDL_Init(SDL_INIT_VIDEO);
+	#endif
 
 	if (err != 0) {
 		Error("Could not initialize SDL: %s\n", SDL_GetError());
@@ -588,6 +594,13 @@ void Video_Tick(void)
 		Video_ShowFPS(GFX_Screen_Get_ByIndex(SCREEN_0));
 	}
 
+	#ifdef __GCW0__
+	/* Map right stick to mouse */
+	if ((GCW_JOYSTICK_X_MOVE != 0) || (GCW_JOYSTICK_Y_MOVE != 0)) {
+		Video_Mouse_Move(s_mousePosX + GCW_JOYSTICK_X_MOVE, s_mousePosY + GCW_JOYSTICK_Y_MOVE);
+	}
+	#endif
+
 	while (SDL_PollEvent(&event)) {
 		uint8 keyup = 1;
 
@@ -597,6 +610,35 @@ void Video_Tick(void)
 				PrepareEnd();
 				exit(0);
 			} break;
+
+			#ifdef __GCW0__
+			case SDL_JOYAXISMOTION:
+				/* Map right stick to mouse */
+				/* Left */
+				if(SDL_JoystickGetAxis(GCW_JOYSTICK,0)<-GCW_JOYSTICK_DEADZONE) {
+					GCW_JOYSTICK_X_MOVE = -GCW_JOYSTIC2MOUSE_SPEED;
+				}
+				/* Right */
+  				if(SDL_JoystickGetAxis(GCW_JOYSTICK,0)>GCW_JOYSTICK_DEADZONE) {
+					GCW_JOYSTICK_X_MOVE = GCW_JOYSTIC2MOUSE_SPEED;
+				}
+				/* Up */
+  				if(SDL_JoystickGetAxis(GCW_JOYSTICK,1)<-GCW_JOYSTICK_DEADZONE) {
+					GCW_JOYSTICK_Y_MOVE = -GCW_JOYSTIC2MOUSE_SPEED;
+				}
+				/* Down */
+  				if(SDL_JoystickGetAxis(GCW_JOYSTICK,1)>GCW_JOYSTICK_DEADZONE) {
+					GCW_JOYSTICK_Y_MOVE = GCW_JOYSTIC2MOUSE_SPEED;
+				}
+				/* Release movement if necessary */
+				if((SDL_JoystickGetAxis(GCW_JOYSTICK,0)>-GCW_JOYSTICK_DEADZONE) && (SDL_JoystickGetAxis(GCW_JOYSTICK,0)<GCW_JOYSTICK_DEADZONE)) {
+					GCW_JOYSTICK_X_MOVE = 0;
+				}
+				if((SDL_JoystickGetAxis(GCW_JOYSTICK,1)>-GCW_JOYSTICK_DEADZONE) && (SDL_JoystickGetAxis(GCW_JOYSTICK,1)<GCW_JOYSTICK_DEADZONE)) {
+					GCW_JOYSTICK_Y_MOVE = 0;
+				}
+				break;
+			#endif
 
 			case SDL_MOUSEMOTION:
 				Video_Mouse_Move(event.motion.x, event.motion.y);
@@ -612,12 +654,70 @@ void Video_Tick(void)
 				break;
 
 			case SDL_KEYDOWN:
+				#ifdef __GCW0__
+				{
+					/* A = left mouse
+					 * B = right mouse
+					 */
+					unsigned int sym = event.key.keysym.sym;
+					if (sym == SDLK_LCTRL) {
+						Video_Mouse_Button(true,  true);
+						break;
+					} else if (sym == SDLK_LALT) {
+						Video_Mouse_Button(false, true);
+						break;
+					}
+				}
+				#endif
 				keyup = 0;
 				/* Fall Through */
 			case SDL_KEYUP:
 			{
 				unsigned int sym = event.key.keysym.sym;
 				uint8 code = 0;
+				#ifdef __GCW0__
+				/* A = left mouse
+				 * B = right mouse
+				 * X = Move (m)
+				 * Y = Attack (a)
+				 * SELECT = Mentat
+				 * START = Options
+				 * L1 = Open menu for the selected structure
+				 * R1 = Switch between visible units and structures
+				 * L2 = Decrease mouse speed
+				 * R2 = Increase mouse speed
+				 * POWER = Exit
+				 */
+				if (sym == SDLK_LCTRL) {
+					Video_Mouse_Button(true,  false);
+					break;
+				} else if (sym == SDLK_LALT) {
+					Video_Mouse_Button(false, false);
+					break;
+				} else if (sym == SDLK_SPACE) {
+					code = 0x32;
+				} else if (sym == SDLK_LSHIFT) {
+					code = 0x1e;
+				} else if (sym == SDLK_ESCAPE) {
+					code = 0x3b;
+				} else if (sym == SDLK_RETURN) {
+					code = 0x3c;
+				} else if (sym == SDLK_TAB) {
+					code = 0x3d;
+				} else if (sym == SDLK_BACKSPACE) {
+					code = 0x0f;
+				} else if (sym == SDLK_PAGEUP) {
+					GCW_JOYSTIC2MOUSE_SPEED = GCW_JOYSTIC2MOUSE_SPEED - 1;
+					if (GCW_JOYSTIC2MOUSE_SPEED < 1) {
+						GCW_JOYSTIC2MOUSE_SPEED = 1;
+					}
+				} else if (sym == SDLK_PAGEDOWN) {
+					GCW_JOYSTIC2MOUSE_SPEED = GCW_JOYSTIC2MOUSE_SPEED + 1;
+				} else if (sym == SDLK_HOME) {
+					PrepareEnd();
+					exit(0);
+				}
+				#else /* Desactivate others to avoid conflicts */
 				if ((sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_ALT)) || sym == SDLK_F11) {
 					/* ALT-ENTER was pressed */
 					if (keyup) continue;	/* ignore key-up */
@@ -641,6 +741,7 @@ void Video_Tick(void)
 				} else {
 					if (sym < sizeof(s_SDL_keymap)) code = s_SDL_keymap[sym];
 				}
+				#endif
 				if (code == 0) {
 					Warning("Unhandled key scancode=0x%X sym=0x%X %s\n",
 					        event.key.keysym.scancode, event.key.keysym.sym,

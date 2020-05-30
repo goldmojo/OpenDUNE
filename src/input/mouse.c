@@ -52,6 +52,13 @@ uint16 g_mouseRecordedY;
 uint8 g_mouseMode;
 uint16 g_inputFlags;
 
+#ifdef __GCW0__
+SDL_Joystick* GCW_JOYSTICK;
+Sint16 GCW_JOYSTICK_DEADZONE;
+int GCW_JOYSTIC2MOUSE_SPEED;
+int GCW_JOYSTICK_X_MOVE;
+int GCW_JOYSTICK_Y_MOVE;
+#endif
 
 /**
  * Initialize the mouse driver.
@@ -67,6 +74,17 @@ void Mouse_Init(void)
 
 	g_mouseDisabled = 1;
 	g_mouseFileID = FILE_INVALID;
+
+	/**
+	 * Map right stick to mouse
+	 */
+	#ifdef __GCW0__
+	GCW_JOYSTICK = SDL_JoystickOpen(0);
+	GCW_JOYSTICK_DEADZONE = 1000;
+	GCW_JOYSTIC2MOUSE_SPEED = 2;
+	GCW_JOYSTICK_X_MOVE = 0;
+	GCW_JOYSTICK_Y_MOVE = 0;
+	#endif
 
 	Video_Mouse_SetPosition(g_mouseX, g_mouseY);
 }

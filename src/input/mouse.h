@@ -3,6 +3,10 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#ifdef __GCW0__
+#include <SDL.h>
+#endif
+
 extern uint16 g_mouseLock;
 extern bool   g_doubleWidth;
 extern uint16 g_mouseX;
@@ -34,6 +38,14 @@ extern uint16 g_mouseRecordedY;
 
 extern uint8 g_mouseMode;
 extern uint16 g_inputFlags;
+
+#ifdef __GCW0__
+extern SDL_Joystick* GCW_JOYSTICK;
+extern Sint16 GCW_JOYSTICK_DEADZONE;
+extern int GCW_JOYSTIC2MOUSE_SPEED;
+extern int GCW_JOYSTICK_X_MOVE;
+extern int GCW_JOYSTICK_Y_MOVE;
+#endif
 
 extern void Mouse_Init(void);
 extern void Mouse_EventHandler(uint16 mousePosX, uint16 mousePosY, bool mouseButtonLeft, bool mouseButtonRight);
