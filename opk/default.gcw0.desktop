@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=OpenDune
 Comment=OpenDune for RG350
-Exec=opendune
+Exec=./opendune.sh
 Terminal=false
 Type=games
 StartupNotify=true
