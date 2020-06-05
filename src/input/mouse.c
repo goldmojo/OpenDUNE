@@ -55,7 +55,7 @@ uint16 g_inputFlags;
 #ifdef __GCW0__
 SDL_Joystick* GCW_JOYSTICK;
 Sint16 GCW_JOYSTICK_DEADZONE;
-int GCW_JOYSTIC2MOUSE_SPEED;
+int GCW_JOYSTIC2MOUSE_SPEEDSTEP;
 int GCW_JOYSTICK_X_MOVE;
 int GCW_JOYSTICK_Y_MOVE;
 #endif
@@ -80,8 +80,10 @@ void Mouse_Init(void)
 	 */
 	#ifdef __GCW0__
 	GCW_JOYSTICK = SDL_JoystickOpen(0);
-	GCW_JOYSTICK_DEADZONE = 1000;
-	GCW_JOYSTIC2MOUSE_SPEED = 2;
+	GCW_JOYSTICK_DEADZONE = 500;
+	/* Maximum joystick value is 32768
+	   Will change mouse speed every 4000 */
+	GCW_JOYSTIC2MOUSE_SPEEDSTEP = 4000;
 	GCW_JOYSTICK_X_MOVE = 0;
 	GCW_JOYSTICK_Y_MOVE = 0;
 	#endif

@@ -42,7 +42,7 @@ extern uint16 g_inputFlags;
 #ifdef __GCW0__
 extern SDL_Joystick* GCW_JOYSTICK;
 extern Sint16 GCW_JOYSTICK_DEADZONE;
-extern int GCW_JOYSTIC2MOUSE_SPEED;
+extern int GCW_JOYSTIC2MOUSE_SPEEDSTEP;
 extern int GCW_JOYSTICK_X_MOVE;
 extern int GCW_JOYSTICK_Y_MOVE;
 #endif

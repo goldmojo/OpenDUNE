@@ -16,6 +16,10 @@
 #include "../opendune.h"
 #include "../inifile.h"
 
+#ifdef __GCW0__
+#include "../map.h"
+#endif
+
 #include "video_fps.h"
 #include "scalebit.h"
 #include "hqx.h"
@@ -616,19 +620,19 @@ void Video_Tick(void)
 				/* Map right stick to mouse */
 				/* Left */
 				if(SDL_JoystickGetAxis(GCW_JOYSTICK,0)<-GCW_JOYSTICK_DEADZONE) {
-					GCW_JOYSTICK_X_MOVE = -GCW_JOYSTIC2MOUSE_SPEED;
+					GCW_JOYSTICK_X_MOVE = (SDL_JoystickGetAxis(GCW_JOYSTICK,0) / GCW_JOYSTIC2MOUSE_SPEEDSTEP) - 1;
 				}
 				/* Right */
   				if(SDL_JoystickGetAxis(GCW_JOYSTICK,0)>GCW_JOYSTICK_DEADZONE) {
-					GCW_JOYSTICK_X_MOVE = GCW_JOYSTIC2MOUSE_SPEED;
+					GCW_JOYSTICK_X_MOVE = (SDL_JoystickGetAxis(GCW_JOYSTICK,0) / GCW_JOYSTIC2MOUSE_SPEEDSTEP) + 1;
 				}
 				/* Up */
   				if(SDL_JoystickGetAxis(GCW_JOYSTICK,1)<-GCW_JOYSTICK_DEADZONE) {
-					GCW_JOYSTICK_Y_MOVE = -GCW_JOYSTIC2MOUSE_SPEED;
+					GCW_JOYSTICK_Y_MOVE = (SDL_JoystickGetAxis(GCW_JOYSTICK,1) / GCW_JOYSTIC2MOUSE_SPEEDSTEP) - 1;
 				}
 				/* Down */
   				if(SDL_JoystickGetAxis(GCW_JOYSTICK,1)>GCW_JOYSTICK_DEADZONE) {
-					GCW_JOYSTICK_Y_MOVE = GCW_JOYSTIC2MOUSE_SPEED;
+					GCW_JOYSTICK_Y_MOVE = (SDL_JoystickGetAxis(GCW_JOYSTICK,1) / GCW_JOYSTIC2MOUSE_SPEEDSTEP) + 1;
 				}
 				/* Release movement if necessary */
 				if((SDL_JoystickGetAxis(GCW_JOYSTICK,0)>-GCW_JOYSTICK_DEADZONE) && (SDL_JoystickGetAxis(GCW_JOYSTICK,0)<GCW_JOYSTICK_DEADZONE)) {
@@ -684,9 +688,10 @@ void Video_Tick(void)
 				 * START = Options
 				 * L1 = Open menu for the selected structure
 				 * R1 = Switch between visible units and structures
-				 * L2 = Decrease mouse speed
-				 * R2 = Increase mouse speed
+				 * L2 = <Available>
+				 * R2 = <Available>
 				 * POWER = Exit
+				 * D-PAD = Scroll the map
 				 */
 				if (sym == SDLK_LCTRL) {
 					Video_Mouse_Button(true,  false);
@@ -707,15 +712,24 @@ void Video_Tick(void)
 				} else if (sym == SDLK_BACKSPACE) {
 					code = 0x0f;
 				} else if (sym == SDLK_PAGEUP) {
-					GCW_JOYSTIC2MOUSE_SPEED = GCW_JOYSTIC2MOUSE_SPEED - 1;
-					if (GCW_JOYSTIC2MOUSE_SPEED < 1) {
-						GCW_JOYSTIC2MOUSE_SPEED = 1;
-					}
+					break;
 				} else if (sym == SDLK_PAGEDOWN) {
-					GCW_JOYSTIC2MOUSE_SPEED = GCW_JOYSTIC2MOUSE_SPEED + 1;
+					break;
 				} else if (sym == SDLK_HOME) {
 					PrepareEnd();
 					exit(0);
+				} else if (sym == SDLK_UP) {
+					Map_MoveDirection(0);
+					break;
+				} else if (sym == SDLK_DOWN) {
+					Map_MoveDirection(4);
+					break;
+				} else if (sym == SDLK_LEFT) {
+					Map_MoveDirection(6);
+					break;
+				} else if (sym == SDLK_RIGHT) {
+					Map_MoveDirection(2);
+					break;
 				}
 				#else /* Desactivate others to avoid conflicts */
 				if ((sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_ALT)) || sym == SDLK_F11) {
